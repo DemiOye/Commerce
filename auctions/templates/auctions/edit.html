@@ -1,0 +1,45 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% for x in listing %}
+        {% if x.user == active_user %}
+            <h2>Edit Listing: <b style="text-transform: capitalize; font-weight: inherit">{{ x.title }}</b></h2>
+                <div class="create">
+                    {% if x.image %}
+                        <img style="border-radius: 5px; margin-top: 30px" src="{{ x.image.url }}" width="300" />
+                        <form method="POST" action="/delete_image/{{ x.user }}/{{ x.title }}">
+                            {% csrf_token %}
+                            <input style="margin-top: 20px; color: red; max-width: 300px" type="submit" value="Delete Image" />
+                        </form>
+                    {% endif %}<br>     
+                    <form method="POST" action="/edit_listing/{{ x.user }}/{{ x.title }}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label>Category:</label>
+                        <select name="category" id="id_category">
+                            {% for category in categories %}
+                                {% if category == x.category %}
+                                    <option value="{{ category }}" selected>{{ category }}</option>
+                                {% else %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <label>Price:</label>
+                        <input type="number" name="price" value="{{ x.price }}" required id="id_price">  
+                        {% if not x.image %}
+                            <label>Image:</label>
+                            <input type="file" name="image" accept="image/*" id="id_image">
+                        {% endif %}
+                        <label>Description:</label>
+                        <textarea name="description" cols="40" rows="10" required id="id_description">{{ x.description }}</textarea>
+                        <input type="submit" value="Submit" />
+                    </form>
+                </div>
+        {% else %} 
+            <h2>Unauthorized</h2>
+            <span>You cannot access this page as you are not the authorized user</span>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}

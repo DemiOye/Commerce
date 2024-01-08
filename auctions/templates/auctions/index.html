@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2><br>
+
+    {% if listings %}
+        {% for listing in listings %}
+            <div class="listing-cont">
+                <h4 style="text-transform: capitalize;">{{ listing.title }}</h4>
+                <span style="font-size: 14px">Category: {{ listing.category }}</span>
+                {% if listing.image %}
+                    <img src="{{ listing.image.url }}" width="300"/>
+                {% else %} 
+                    <div align="center" class="no-img">No Image</div>
+                {% endif %}
+                <span>Starting Bid: <b>${{ listing.price }}</b></span>
+                <span style="font-size: 14px">Posted by {{ listing.user }} on {{ listing.last_modified.date }} at {{ listing.last_modified.time }}</span>
+                <a href="/listings/{{ listing.user }}/{{ listing.category }}/{{ listing.title }}">View Listing</a>
+            </div>
+        {% endfor %} 
+    {% else %} 
+        <h4 style="color: #5e5e5e">There are no active listings</h4>    
+    {% endif %}
+
+{% endblock %}

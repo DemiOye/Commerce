@@ -1,0 +1,50 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %} 
+    <h2>Watchlist</h2><br>
+
+    {% if logged_in %}
+        {% if user_bids %}
+            {% for user_bid in user_bids %}
+                <div class="listing-cont">
+                    <h4 style="text-transform: capitalize">{{ user_bid.listing }}</h4>
+                    <span>Category: {{ user_bid.listing_catg }}</span>
+                    <span>Starting bid: ${{ user_bid.listing_price }}</span>
+                    <span>Posted by: <b>{{ user_bid.listing_user }}</b></span>
+                    <span>Amount bidded: ${{ user_bid.bid }}</span>
+                    <span>{{ user_bid.time_posted }}</span>
+                    <div style="display: flex; margin-top: 5px">
+                        <a style="margin-top: 3px" href="/listings/{{ user_bid.listing_user }}/{{ user_bid.listing_catg }}/{{ user_bid.listing }}">View Listing</a>
+                        &nbsp;&nbsp;
+                        <form method="POST" action="/withdraw_bid_w/{{ user_bid.bid_user }}/{{ user_bid.bid }}/{{ user_bid.listing }}/{{ user_bid.listing_user }}">
+                            {% csrf_token %}
+                            <input style="color: red" type="submit" value="Withdraw Bid"/>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %} 
+        {% else %} 
+            <span>Your watchlist is empty. Place a bid to add to your watchlist.</span><br>
+        {% endif %}
+        <br><br><br>
+        <h4>Your Bid Wins</h4>
+            {% if user_wins %} 
+                {% for win in user_wins %}
+                    <br> 
+                    <div style="display: grid; margin-bottom: 5px; border: solid 2px #e1e1e1; border-radius: 3px; padding: 10px">
+                        <h5 style="text-decoration: underline; text-transform: capitalize;">{{ win.listing }}</h5>
+                        <span>Category: {{ win.listing_category }}</span>
+                        <span>Starting bid: ${{ win.listing_price }}</span>
+                        <span>Posted by: <b>{{ win.listing_user }}</b></span>
+                        <span>Amount bidded: ${{ win.win_amount }}</span>
+                        <a href="/win/{{ win.win_user }}/{{ win.listing_user }}/{{ win.listing }}">View Details</a>
+                    </div>
+                {% endfor %}   
+            {% else %} 
+                <br><span>You have not won any bids</span>
+            {% endif %}
+    {% else %}
+        <h4>You're Not Logged In</h4><br>
+        <span>Please sign in or register to view your watchlist</span>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 style="text-transform: capitalize">{{ title }}</h2>
+    <h5 style="color: #5e5e5e">Category: {{ category }}</h5>
+    <br>
+
+    {% if listing %}
+        {% for x in listing %}
+            {% if logged_in %}
+                {% if x.user == active_user %}
+                    <div class="listing">
+                        {% if x.image %}
+                            <img src="{{ x.image.url }}" width="420" />
+                        {% else %} 
+                            <div class="no-img" align="center">No Image</div>
+                        {% endif %}
+                        <br>
+                        <span style="font-size: 23px">Starting bid: <b>${{ x.price }}</b></span>
+                        <p>Description: {{ x.description }}</p>
+                        <span style="font-size: 14px; color: #5e5e5e">Posted by <b>{{ x.user }} (Active User)</b> on {{ x.last_modified.date }} at {{ x.last_modified.time }}</span>
+                        <div>
+                            <a href="/edit_listing_page/{{ active_user }}/{{ title }}">Edit Listing</a>&nbsp;&nbsp;
+                            <a style="color: red" href="/delete_listing_page/{{ active_user }}/{{ title }}">Close Listing</a>
+                        </div>
+                    </div>
+                {% else %} 
+                    <div class="listing">
+                        {% if x.image %}
+                            <img src="{{ x.image.url }}" width="420" />
+                        {% else %} 
+                            <div class="no-img" align="center">No Image</div>
+                        {% endif %}
+                        <br>
+                        <span style="font-size: 23px">Starting bid: <b>${{ x.price }}</b></span>
+                        <p>Description: {{ x.description }}</p>
+                        <span style="font-size: 14px; color: #5e5e5e">Posted by <b>{{ x.user }}</b> on {{ x.last_modified.date }} at {{ x.last_modified.time }}</span>
+                    </div>
+                    {% if low_start %} 
+                        <span style="color: red; font-size: 14px">Your bid is too low. Please bid a minimum of ${{ x.price }}</span>
+                    {% endif %} 
+                    {% if low_bid %} 
+                        <span style="color: red; font-size: 14px">Your bid is too low. Please bid higher than ${{ higgest_bid }}</span>
+                    {% endif %}
+                    <form method="POST" action="/post_bid/{{ x.user }}/{{ x.title }}/{{ x.category }}/{{ x.price }}">
+                        {% csrf_token %}
+                        {{ place_bid }}
+                        <input type="submit" value="Place Bid"/>
+                    </form><br>
+                    <form method="POST" action="/post_comment/{{ x.user }}/{{ x.title }}">
+                        {% csrf_token %}
+                        {{ post_comment }}
+                        <input type="submit" value="Post Comment"/>
+                    </form><br>
+                {% endif %} 
+            {% else %} 
+                <div class="listing">
+                    {% if x.image %}
+                        <img src="{{ x.image.url }}" width="420" />
+                    {% else %} 
+                        <div class="no-img" align="center">No Image</div>
+                    {% endif %}
+                    <br>
+                    <span style="font-size: 23px">Starting bid: <b>${{ x.price }}</b></span>
+                    <p>Description: {{ x.description }}</p>
+                    <span style="font-size: 14px; color: #5e5e5e">Posted by <b>{{ x.user }}</b> on {{ x.last_modified.date }} at {{ x.last_modified.time }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if logged_in %}
+
+            <div style="border: solid 2px #e1e1e1; border-radius: 3px; padding: 10px; margin-bottom: 30px">
+                <h5 style="text-decoration: underline">Bids</h5>
+                {% if bids %} 
+                    {% for bid in bids %} 
+                        {% if bid.bid_user == active_user %}
+                            <div class="bids">
+                                <span style="font-weight: bold; font-size: 18px; color: #2c4fee">${{ bid.bid }}</span>&nbsp;&nbsp;
+                                <span>Placed by: <b>You</b> on {{ bid.time_posted.date }} at {{ bid.time_posted.time }}</span>
+                                <form method="POST" action="/withdraw_bid/{{ bid.bid_user }}/{{ bid.bid }}/{{ bid.listing }}/{{ bid.listing_user }}">
+                                    {% csrf_token %}
+                                    <input type="submit" value="Withdraw Bid" />
+                                </form>  
+                            </div>
+                        {% else %}  
+                            <div class="bids">
+                                <span style="font-weight: bold; font-size: 18px; color: #2c4fee">${{ bid.bid }}</span>&nbsp;&nbsp;
+                                <span>Placed by: {{ bid.bid_user }} on {{ bid.time_posted.date }} at {{ bid.time_posted.time }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %} 
+                    <span>There are currently no bids for this listing</span>
+                {% endif %}
+            </div>
+
+            <div style="border: solid 2px #e1e1e1; border-radius: 3px; padding: 10px">
+                <h5 style="text-decoration: underline">Comments</h5>
+                {% if comments %} 
+                    {% for comment in comments %}
+                        {% if comment.comment_user == active_user %}
+                            <div class="comments">
+                                <span style="font-weight: bold; font-size: 18px; text-transform: capitalize; color: #2c4fee">{{ comment.comment }}</span>&nbsp;&nbsp;
+                                <span>Posted by: <b>You</b> on {{ comment.time_posted.date}} at {{ comment.time_posted.time }}</span>
+                                <form method="POST" action="/delete_comment/{{ comment.comment_user }}/{{ comment.comment }}/{{ comment.listing }}/{{ comment.listing_user }}">
+                                    {% csrf_token %}
+                                    <input type="submit" value="Delete" />
+                                </form>
+                            </div>
+                        {% else %} 
+                            <div class="comments">
+                                <span style="font-weight: bold; font-size: 18px; text-transform: capitalize; color: #2c4fee">{{ comment.comment }}</span>&nbsp;&nbsp;
+                                <span>Posted by: {{ comment.comment_user }} on {{ comment.time_posted.date}} at {{ comment.time_posted.time }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}         
+                {% else %} 
+                    <span>No Comments</span>
+                {% endif %}
+            </div>
+                
+        {% else %} 
+
+            <div style="border: solid 2px #e1e1e1; border-radius: 3px; padding: 10px; margin-bottom: 30px">
+                <h5 style="text-decoration: underline">Bids</h5>
+                {% if bids %} 
+                    {% for bid in bids %} 
+                        <div class="bids">
+                            <span style="font-weight: bold; font-size: 18px; color: #2c4fee">${{ bid.bid }}</span>&nbsp;&nbsp;
+                            <span>Placed by: {{ bid.bid_user }} on {{ bid.time_posted.date }} at {{ bid.time_posted.time }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %} 
+                    <span>There are currently no bids for this listing</span><br>
+                {% endif %}
+                <br>
+                <span>Login or register to place a bid</span>
+            </div> 
+
+            <div style="border: solid 2px #e1e1e1; border-radius: 3px; padding: 10px">
+                <h5 style="text-decoration: underline">Comments</h5>
+                {% if comments %} 
+                    {% for comment in comments %}
+                        <div class="comments">
+                            <span style="font-weight: bold; font-size: 18px; text-transform: capitalize; color: #2c4fee">{{ comment.comment }}</span>&nbsp;&nbsp;
+                            <span>Posted by: {{ comment.comment_user }} on {{ comment.time_posted.date}} at {{ comment.time_posted.time }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %} 
+                    <span>No Comments</span><br>
+                {% endif %}
+                <br>
+                <span>Login or register to make a comment</span>
+            </div>
+
+        {% endif %}
+
+    {% else %} 
+        <span style="font-size: 18px">This listing does not exist</span>    
+    {% endif %}
+
+{% endblock %}

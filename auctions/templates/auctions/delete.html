@@ -1,0 +1,40 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %} 
+
+    {% if deleted %}
+        <h4 style="color: red">The following listing <b style="text-transform: capitalize; font-weight: inherit">"{{ deleted_listing }}"</b> has been closed</h4><br>
+        {% if win %}
+            {% for x in win_message %}
+                <div style="border: solid 2px #e1e1e1; border-radius: 3px; padding: 10px">
+                    <h5 style="text-decoration: underline">Winning Bid</h5>
+                    <span>Winner: <b style="text-transform: capitalize">{{ x.win_user }}</b></span><br>
+                    <span>Bid amount: ${{ x.win_amount }}</span><br>
+                    <span>Starting bid: ${{ x.listing_price }}</span>
+                </div>
+            {% endfor %}    
+        {% else %} 
+            <span>No winning bid for this listing</span> 
+        {% endif %} 
+    {% else %}
+        {% for x in delete_listing %} 
+            {% if x.user == active_user %} 
+                <h2 style="color: red">Close Listing: <b style="text-transform: capitalize; font-weight: inherit">{{ x.title }}</b></h2><br>
+                <span>Are you sure you want to close this listing?</span><br>
+                <div style="display: flex; margin-top: 12px">
+                    <form method="POST" action="/delete_listing/{{ x.user }}/{{ x.title }}">
+                        {% csrf_token %}
+                        <input style="color: red; padding: 0px 10px" type="submit" value="Proceed">
+                    </form>
+                    &nbsp;&nbsp;&nbsp;
+                    <a style="color: red; margin-top: 3px" href="/listings/{{ x.user }}/{{ x.category }}/{{ x.title }}">Cancel</a>
+                </div>
+
+            {% else %}
+                <h2>Unauthorized</h2>
+                <span>You cannot access this page as you are not the authorized user</span> 
+            {% endif %} 
+        {% endfor %}
+    {% endif %} 
+    
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %} 
+    {% for x in win %}
+        {% if x.win_user == active_user %} 
+            <h2 style="text-transform: capitalize">{{ x.listing }}</h2>
+            <h5 style="color: #5e5e5e">Category: {{ x.listing_category }}</h5>
+            <br>
+            {% for y in image %} 
+                {% if y.image %} 
+                    <img style="border-radius: 5px" src="{{ y.image.url }}" width="420"/><br><br>
+                {% else %} 
+                    <div class="win-img" align="center">No Image</div><br>
+                {% endif %} 
+            {% endfor %}
+            <span style="font-size: 23px">Starting bid: <b>${{ x.listing_price }}</b></span><br>
+            <span>Description: {{ x.listing_description }}</span><br>
+            <span>Posted by: <b>{{ x.listing_user }}</b></span><br>
+            <span style="font-size: 14px; color: #5e5e5e">Closed on {{ x.time_closed.date }} at {{ x.time_closed.time }}</span><br>
+            <br>
+            <span style="font-size: 23px">Winning bid: <b style="color: #2c4fee">${{ x.win_amount }}</b></span><br>
+            <span>Winner: <b>You</b></span><br>
+        {% else %} 
+            <h2>Unauthorized</h2>
+            <span>You cannot access this page as you are not the authorized user</span>
+        {% endif %} 
+    {% endfor %}
+{% endblock %}

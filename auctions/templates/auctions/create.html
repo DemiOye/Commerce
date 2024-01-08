@@ -1,0 +1,23 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Create Listing</h2>
+
+    {% if logged_in %}
+        <div class="create">
+            {% if exists %}
+                <span style="color: red; font-size: 14px">You already have a listing with this title.</span>
+            {% endif %} 
+            <form method="POST" action="{% url 'create listing' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ create }}
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+    {% else %} 
+        <br>
+        <span>You're not logged in. Please login or register to create listing.</span>
+    {% endif %}
+
+{% endblock %}
